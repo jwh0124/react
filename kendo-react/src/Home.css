@@ -1,0 +1,199 @@
+#ai-assistant {
+  min-height: 60px;
+  padding: var(--kendo-spacing-4);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  border-radius: var(--kendo-border-radius-xl);
+  background: linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(114deg, #4b5ffa 0%, #c158e4 93%) border-box;
+  position: relative;
+  gap: var(--kendo-spacing-2);
+}
+
+#ai-assistant::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 25%;
+  width: 70%;
+  height: 100%;
+  opacity: 0.18;
+  background: url(./assets/circle.png) center center no-repeat;
+  background-size: cover;
+}
+
+#ai-assistant h4 {
+  position: relative;
+  text-align: left;
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 500;
+  margin: 0;
+}
+
+#ai-assistant .k-icon {
+  color: #4b5ffa;
+  margin-right: 10px;
+}
+
+#ai-assistant p {
+  margin: 0 0 0 41px;
+  text-align: left;
+}
+
+#ai-assistant > a {
+  color: #a75ae9;
+  text-decoration: none;
+  width: 107px;
+  z-index: 2;
+  text-wrap: nowrap;
+}
+
+#ai-assistant > a:hover {
+  text-decoration: underline;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.ai-section {
+  margin: auto;
+  width: 100%;
+  max-width: 1152px;
+}
+
+.react-logo {
+  width: 889px;
+  position: absolute;
+  right: 0px;
+  top: -205px;
+  z-index: -1;
+  height: 788px;
+}
+
+.section-container {
+  padding: var(--kendo-spacing-8);
+  margin: 0 auto;
+}
+
+.section-container.ai {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kendo-spacing-6);
+}
+
+.center-section,
+.cards {
+  margin: 0 auto;
+  max-width: 1120px;
+}
+
+.center-section .section-title {
+  margin: var(--kendo-spacing-2);
+}
+
+.section-container.get-started {
+  width: 100%;
+  text-align: left;
+  padding: 24px 0px 24px 0px;
+}
+
+.section-container.get-started code {
+  padding: 0 4px;
+}
+
+.welcome-title,
+.welcome-subtitle {
+  margin: 0;
+  font-weight: 300;
+}
+
+.welcome-title {
+  font-size: 84px;
+  line-height: 100px;
+}
+
+.welcome-subtitle {
+  font-size: 42px;
+  line-height: 50px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 42px;
+  margin: 0;
+}
+
+.cards .section-title {
+  text-align: left;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kendo-spacing-12);
+}
+
+.k-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kendo-spacing-0, 0px);
+  align-items: center;
+  margin: var(--kendo-spacing-6) 0;
+  padding: var(--kendo-spacing-0, 0px);
+  height: 310px;
+  width: 240px;
+  box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.04),
+    0px 4px 16px 0px rgba(0, 0, 0, 0.12);
+}
+
+.k-card-header {
+  border: none;
+}
+
+.k-card-body {
+  text-align: left;
+}
+
+.card-list {
+  padding: var(--kendo-spacing-0, 0px);
+  margin: 0;
+  list-style-type: disc;
+  text-align: left;
+}
+
+footer {
+  padding: var(--kendo-spacing-4, 16px) 0px;
+  border: 1px solid;
+  border-color: var(--kendo-color-border, rgba(0, 0, 0, 0.08));
+  color: var(--light-theme-text-colors-kendo-subtle-text, #666666);
+  font-size: 14px;
+  margin-top: auto;
+}
+
+@media (max-width: 900px) {
+  .section-container .welcome-title {
+    font-size: 64px;
+    line-height: 84px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-container .welcome-title {
+    font-size: 42px;
+    line-height: 48px;
+  }
+
+  .section-container .welcome-subtitle {
+    font-size: 24px;
+    line-height: 32px;
+  }
+}
