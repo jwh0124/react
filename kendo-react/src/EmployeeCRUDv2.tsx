@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -22,8 +22,11 @@ import {
 } from "./schemas/employeeSchema";
 import { useEmployees } from "./hooks/useEmployees";
 import { Employee } from "./api/employeeApi";
+import { useAuth } from "./contexts/AuthContext";
 
 export default function EmployeeCRUDv2() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const {
     employees,
     isLoading,
@@ -112,6 +115,11 @@ export default function EmployeeCRUDv2() {
     reset();
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   if (isLoading) {
     return (
       <div className="page">
@@ -143,6 +151,9 @@ export default function EmployeeCRUDv2() {
         </AppBarSection>
         <AppBarSpacer />
         <AppBarSection>
+          <span style={{ marginRight: "16px", color: "#fff" }}>
+            👤 {user?.name} ({user?.role})
+          </span>
           <Link to="/">
             <Button themeColor="primary" fillMode="flat" className="k-mr-1">
               Home
@@ -159,10 +170,13 @@ export default function EmployeeCRUDv2() {
             </Button>
           </Link>
           <Link to="/crud-v2/">
-            <Button themeColor="primary" fillMode="flat">
+            <Button themeColor="primary" fillMode="flat" className="k-mr-1">
               CRUD v2
             </Button>
           </Link>
+          <Button themeColor="error" fillMode="flat" onClick={handleLogout}>
+            로그아웃
+          </Button>
         </AppBarSection>
       </AppBar>
 

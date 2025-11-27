@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   AppBar,
@@ -11,14 +11,26 @@ import {
   CardTitle,
 } from "@progress/kendo-react-layout";
 import { Button } from "@progress/kendo-react-buttons";
+import { useAuth } from "./contexts/AuthContext";
 
 export default function HomeSimple() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   return (
     <div className="page">
       <AppBar position="top">
         <AppBarSection>KendoReact ❤️ Vite</AppBarSection>
         <AppBarSpacer />
         <AppBarSection>
+          <span style={{ marginRight: "16px", color: "#fff" }}>
+            👤 {user?.name} ({user?.role})
+          </span>
           <Link to="/">
             <Button themeColor="primary" fillMode="flat" className="k-mr-1">
               Home
@@ -35,10 +47,13 @@ export default function HomeSimple() {
             </Button>
           </Link>
           <Link to="/crud-v2/">
-            <Button themeColor="primary" fillMode="flat">
+            <Button themeColor="primary" fillMode="flat" className="k-mr-1">
               CRUD v2 (최신)
             </Button>
           </Link>
+          <Button themeColor="error" fillMode="flat" onClick={handleLogout}>
+            로그아웃
+          </Button>
         </AppBarSection>
       </AppBar>
 
