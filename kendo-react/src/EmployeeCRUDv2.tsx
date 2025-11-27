@@ -24,6 +24,23 @@ import { useEmployees } from "./hooks/useEmployees";
 import { Employee } from "./api/employeeApi";
 import { useAuth } from "./contexts/AuthContext";
 
+// ✅ 기본값을 상수로 분리
+const INITIAL_EMPLOYEE: EmployeeFormData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  hireDate: new Date(),
+  salary: 0,
+  department: "",
+};
+
+// ✅ Employee를 FormData로 변환하는 헬퍼 함수
+const toFormData = (employee: Employee): EmployeeFormData => ({
+  ...employee,
+  hireDate: new Date(employee.hireDate),
+});
+
 export default function EmployeeCRUDv2() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -41,7 +58,7 @@ export default function EmployeeCRUDv2() {
   const [showDialog, setShowDialog] = React.useState(false);
   const [isNew, setIsNew] = React.useState(false);
 
-  // React Hook Form 설정
+  // ✅ defaultValues 설정으로 reset() 간소화
   const {
     control,
     handleSubmit,
@@ -50,33 +67,21 @@ export default function EmployeeCRUDv2() {
   } = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
     mode: "onChange",
+    defaultValues: INITIAL_EMPLOYEE,
   });
 
+  // ✅ 간소화된 handleAdd
   const handleAdd = () => {
-    reset({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      hireDate: new Date(),
-      salary: 0,
-      department: "",
-    });
+    reset(); // defaultValues로 자동 초기화
+    setEditItem(null);
     setIsNew(true);
     setShowDialog(true);
   };
 
+  // ✅ 간소화된 handleEdit
   const handleEdit = (dataItem: Employee) => {
+    reset(toFormData(dataItem));
     setEditItem(dataItem);
-    reset({
-      firstName: dataItem.firstName,
-      lastName: dataItem.lastName,
-      email: dataItem.email,
-      phone: dataItem.phone,
-      hireDate: new Date(dataItem.hireDate),
-      salary: dataItem.salary,
-      department: dataItem.department,
-    });
     setIsNew(false);
     setShowDialog(true);
   };
@@ -102,17 +107,17 @@ export default function EmployeeCRUDv2() {
       } else if (editItem) {
         await updateEmployee({ id: editItem.id, data });
       }
-      setShowDialog(false);
-      setEditItem(null);
+      handleCancel(); // ✅ 중복 코드 제거
     } catch (error) {
       console.error("저장 실패:", error);
     }
   };
 
+  // ✅ 간소화된 handleCancel
   const handleCancel = () => {
     setShowDialog(false);
     setEditItem(null);
-    reset();
+    reset(); // defaultValues로 자동 초기화
   };
 
   const handleLogout = async () => {
