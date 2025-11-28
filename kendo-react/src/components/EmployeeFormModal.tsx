@@ -7,6 +7,12 @@ import * as React from "react";
 
 import { Employee } from "../api/employeeApi";
 import { type EmployeeFormData } from "../schemas/employeeSchema";
+import {
+  emailValidator,
+  phoneValidator,
+  requiredValidator,
+  salaryValidator,
+} from "../validators/employeeValidators";
 
 interface EmployeeFormModalProps {
   showDialog: boolean;
@@ -32,32 +38,6 @@ const toFormData = (employee: Employee): EmployeeFormData => ({
   ...employee,
   hireDate: new Date(employee.hireDate),
 });
-
-// Validation functions
-const requiredValidator = (value: any) =>
-  value ? "" : "필수 입력 항목입니다.";
-
-const emailValidator = (value: string) => {
-  if (!value) return "필수 입력 항목입니다.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    return "올바른 이메일 형식이 아닙니다.";
-  }
-  return "";
-};
-
-const phoneValidator = (value: string) => {
-  if (!value) return "필수 입력 항목입니다.";
-  if (!/^\d{3}-\d{4}-\d{4}$/.test(value)) {
-    return "올바른 전화번호 형식이 아닙니다. (예: 010-1234-5678)";
-  }
-  return "";
-};
-
-const salaryValidator = (value: number) => {
-  if (value === undefined || value === null) return "필수 입력 항목입니다.";
-  if (value < 0) return "연봉은 0 이상이어야 합니다.";
-  return "";
-};
 
 export const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
   showDialog,
