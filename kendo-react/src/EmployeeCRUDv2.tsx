@@ -1,7 +1,5 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   AppBar,
@@ -9,37 +7,14 @@ import {
   AppBarSpacer,
 } from "@progress/kendo-react-layout";
 import { Button } from "@progress/kendo-react-buttons";
-import { Grid, GridColumn, GridToolbar } from "@progress/kendo-react-grid";
-import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
-import { Input } from "@progress/kendo-react-inputs";
-import { DatePicker } from "@progress/kendo-react-dateinputs";
-import { NumericTextBox } from "@progress/kendo-react-inputs";
 import { Loader } from "@progress/kendo-react-indicators";
 
-import {
-  employeeSchema,
-  type EmployeeFormData,
-} from "./schemas/employeeSchema";
+import { type EmployeeFormData } from "./schemas/employeeSchema";
 import { useEmployees } from "./hooks/useEmployees";
 import { Employee } from "./api/employeeApi";
 import { useAuth } from "./contexts/AuthContext";
-
-// ✅ 기본값을 상수로 분리
-const INITIAL_EMPLOYEE: EmployeeFormData = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  hireDate: new Date(),
-  salary: 0,
-  department: "",
-};
-
-// ✅ Employee를 FormData로 변환하는 헬퍼 함수
-const toFormData = (employee: Employee): EmployeeFormData => ({
-  ...employee,
-  hireDate: new Date(employee.hireDate),
-});
+import { EmployeeFormModal } from "./components/EmployeeFormModal";
+import { EmployeeGrid } from "./components/EmployeeGrid";
 
 export default function EmployeeCRUDv2() {
   const navigate = useNavigate();
@@ -58,29 +33,13 @@ export default function EmployeeCRUDv2() {
   const [showDialog, setShowDialog] = React.useState(false);
   const [isNew, setIsNew] = React.useState(false);
 
-  // ✅ defaultValues 설정으로 reset() 간소화
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid },
-  } = useForm<EmployeeFormData>({
-    resolver: zodResolver(employeeSchema),
-    mode: "onChange",
-    defaultValues: INITIAL_EMPLOYEE,
-  });
-
-  // ✅ 간소화된 handleAdd
   const handleAdd = () => {
-    reset(); // defaultValues로 자동 초기화
     setEditItem(null);
     setIsNew(true);
     setShowDialog(true);
   };
 
-  // ✅ 간소화된 handleEdit
   const handleEdit = (dataItem: Employee) => {
-    reset(toFormData(dataItem));
     setEditItem(dataItem);
     setIsNew(false);
     setShowDialog(true);
@@ -107,17 +66,15 @@ export default function EmployeeCRUDv2() {
       } else if (editItem) {
         await updateEmployee({ id: editItem.id, data });
       }
-      handleCancel(); // ✅ 중복 코드 제거
+      handleCancel();
     } catch (error) {
       console.error("저장 실패:", error);
     }
   };
 
-  // ✅ 간소화된 handleCancel
   const handleCancel = () => {
     setShowDialog(false);
     setEditItem(null);
-    reset(); // defaultValues로 자동 초기화
   };
 
   const handleLogout = async () => {
@@ -193,287 +150,22 @@ export default function EmployeeCRUDv2() {
           </p>
         </div>
 
-        <Grid data={employees} style={{ height: "500px" }}>
-          <GridToolbar>
-            <Button themeColor="primary" onClick={handleAdd}>
-              신규 직원 추가
-            </Button>
-            <span style={{ marginLeft: "16px", color: "#666" }}>
-              총 {employees.length}명
-            </span>
-          </GridToolbar>
-          <GridColumn field="id" title="ID" width="80px" />
-          <GridColumn field="firstName" title="성" width="120px" />
-          <GridColumn field="lastName" title="이름" width="120px" />
-          <GridColumn field="email" title="이메일" width="220px" />
-          <GridColumn field="phone" title="전화번호" width="150px" />
-          <GridColumn
-            field="hireDate"
-            title="입사일"
-            width="150px"
-            format="{0:yyyy-MM-dd}"
-          />
-          <GridColumn
-            field="salary"
-            title="연봉 (원)"
-            width="150px"
-            format="{0:n0}"
-          />
-          <GridColumn field="department" title="부서" width="120px" />
-        </Grid>
+        <EmployeeGrid
+          employees={employees}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
 
-        <div style={{ marginTop: "30px" }}>
-          <h3>직원 목록 (CRUD 액션 포함)</h3>
-          <table
-            className="k-table k-table-md"
-            style={{ width: "100%", marginTop: "20px" }}
-          >
-            <thead>
-              <tr>
-                <th style={{ width: "60px" }}>ID</th>
-                <th>성</th>
-                <th>이름</th>
-                <th>이메일</th>
-                <th>전화번호</th>
-                <th>입사일</th>
-                <th>연봉</th>
-                <th>부서</th>
-                <th style={{ width: "200px" }}>액션</th>
-              </tr>
-            </thead>
-            <tbody>
-              {employees.map((employee) => (
-                <tr key={employee.id}>
-                  <td>{employee.id}</td>
-                  <td>{employee.firstName}</td>
-                  <td>{employee.lastName}</td>
-                  <td>{employee.email}</td>
-                  <td>{employee.phone}</td>
-                  <td>
-                    {new Date(employee.hireDate).toLocaleDateString("ko-KR")}
-                  </td>
-                  <td>{employee.salary.toLocaleString()}원</td>
-                  <td>{employee.department}</td>
-                  <td>
-                    <Button
-                      themeColor="primary"
-                      fillMode="flat"
-                      size="small"
-                      onClick={() => handleEdit(employee)}
-                      className="k-mr-2"
-                    >
-                      수정
-                    </Button>
-                    <Button
-                      themeColor="error"
-                      fillMode="flat"
-                      size="small"
-                      onClick={() => handleDelete(employee)}
-                    >
-                      삭제
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {showDialog && (
-          <Dialog
-            title={isNew ? "신규 직원 추가" : "직원 정보 수정"}
-            onClose={handleCancel}
-            width={550}
-          >
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <fieldset className="k-form-fieldset" style={{ padding: "20px" }}>
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">성 *</label>
-                  <Controller
-                    name="firstName"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="예: 김" />
-                    )}
-                  />
-                  {errors.firstName && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.firstName.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">이름 *</label>
-                  <Controller
-                    name="lastName"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="예: 철수" />
-                    )}
-                  />
-                  {errors.lastName && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.lastName.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">이메일 *</label>
-                  <Controller
-                    name="email"
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="예: kim@example.com"
-                      />
-                    )}
-                  />
-                  {errors.email && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.email.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">전화번호 *</label>
-                  <Controller
-                    name="phone"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="예: 010-1234-5678" />
-                    )}
-                  />
-                  {errors.phone && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.phone.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">입사일 *</label>
-                  <Controller
-                    name="hireDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DatePicker
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.value)}
-                        format="yyyy-MM-dd"
-                      />
-                    )}
-                  />
-                  {errors.hireDate && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.hireDate.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">연봉 (원) *</label>
-                  <Controller
-                    name="salary"
-                    control={control}
-                    render={({ field }) => (
-                      <NumericTextBox
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.value)}
-                        format="n0"
-                        min={0}
-                      />
-                    )}
-                  />
-                  {errors.salary && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.salary.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="k-mb-4">
-                  <label className="k-label k-form-label">부서 *</label>
-                  <Controller
-                    name="department"
-                    control={control}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="예: 개발팀" />
-                    )}
-                  />
-                  {errors.department && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {errors.department.message}
-                    </div>
-                  )}
-                </div>
-              </fieldset>
-
-              <DialogActionsBar>
-                <Button onClick={handleCancel} type="button">
-                  취소
-                </Button>
-                <Button
-                  themeColor="primary"
-                  type="submit"
-                  disabled={!isValid || isCreating || isUpdating}
-                >
-                  {isCreating || isUpdating
-                    ? "처리 중..."
-                    : isNew
-                    ? "추가"
-                    : "저장"}
-                </Button>
-              </DialogActionsBar>
-            </form>
-          </Dialog>
-        )}
+        <EmployeeFormModal
+          showDialog={showDialog}
+          isNew={isNew}
+          editItem={editItem}
+          isCreating={isCreating}
+          isUpdating={isUpdating}
+          onSubmit={onSubmit}
+          onCancel={handleCancel}
+        />
       </section>
     </div>
   );
